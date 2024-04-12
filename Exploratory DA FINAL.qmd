@@ -1,0 +1,321 @@
+---
+title: "Exploratory Data Analysis"
+format: html
+editor: visual
+---
+
+## Exploratory Data Analysis
+
+In this document, I will be exploring my three chosen datasets on Income Data, Public School Data, and Crash Reporting Data all in Montgomery County with the following information.
+
+-   Variable Statistics
+
+-   Missing Information
+
+-   Strong visualizations
+
+    Accompanied by explanations and insights.
+
+    Lets First Load in the Datasets
+
+    ```{r}
+    library(dplyr)
+    library(ggplot2)
+
+    school_data <- read.csv("/Users/xutongzhang/Documents/DATASETS SPRING 2024/Public_Schools_20240211.csv") #Load in School Data
+
+    income_data <- read.csv("/Users/xutongzhang/Documents/DATASETS SPRING 2024/Income Data Final.csv") #Load in Income Data
+
+    crash_data <- read.csv("/Users/xutongzhang/Documents/DATASETS SPRING 2024/Crash_Reporting_-_Drivers_Data_20240211.csv") #Load in Crash Data
+
+
+    ```
+
+## Descriptive Variable Statistics
+
+This section will show the frequency counts, contingency tables, five number summary, and mean of variables in each of the three datasets.
+
+1.  **Public School Data (Montgomery County Maryland)**
+
+**Categorical Variables:** CATEGORY
+
+```{r}
+# Descriptive statistics for ZIP CODE
+table(school_data$CATEGORY)
+
+```
+
+We can see that there are 136 Elementary Schools, 25 High Schools, and 39 Middle schools. Showing a majority of the schools in Montgomery County are Elementary Schools.
+
+**Numerical Variables:** ZIP.CODE
+
+```{r}
+summary(school_data$ZIP.CODE)
+
+
+```
+
+We notice how zip codes range from 20814 to 20912, a valuable piece of info for connecting our other datasets.
+
+**Contingency Table:** Elementary Schools IN ZIP.CODE
+
+```{r}
+table(school_data$CATEGORY, school_data$`ZIP.CODE`)
+
+
+```
+
+This contingency table shows us howmany elementary, middle, and high schools are in each zip code.
+
+2.  **Car Crash Data (Montgomery County Maryland)**
+
+**Categorical Variables:** ACRS Report Type
+
+```{r}
+# Frequency counts for ACRS Report Type
+table(crash_data$`ACRS.Report.Type`)
+
+
+```
+
+This allows me to count of each type of crash report, such as "Property Damage Crash", "Injury Crash", etc. This information will help me understand the distribution of crash severities. We can see how there are 425 fatal crashes, 62,228 crashes resulting in injury, and 10,9452 crashes that resulting in substantial property damage.
+
+**Numerical Variables:** Speed Limit
+
+```{r}
+# Summary statistics for Speed Limit
+summary(crash_data$`Speed.Limit`)
+
+
+
+```
+
+This shows us the five-number summary (minimum, first quartile, median, third quartile, maximum) and mean of the speed limits where crashes occurred, which can help us know whether or not higher speed limits correlate with more severe or frequent crashes.
+
+**Contingency Table:** Elementary Schools IN ZIP.CODE
+
+```{r}
+# Contingency table for ACRS Report Type and Speed Limit
+table(crash_data$`ACRS.Report.Type`, crash_data$`Speed.Limit`)
+
+```
+
+This table will help us see if certain types of crashes are more common at specific speed limits, helping us to see areas where speed limit adjustments might improve safety.
+
+3.  **Income Data (Montgomery County Maryland)**
+
+**Categorical Variables:** ZIP Code
+
+```{r}
+# Unique ZIP codes
+length(unique(income_data$ZIP_Code))
+
+
+```
+
+We see from this is that there are 478 unique Zip codes in the dataset, helping us show the geographic coverage of my income data.
+
+**Numerical Variables:** Median Household Income and Total Households
+
+```{r}
+# Summary statistics for Median Household Income
+summary(income_data$Median_Household_Income)
+
+# Summary statistics for Total Households
+summary(income_data$Total_Households)
+
+```
+
+The data on top shows us the five-number summary (minimum, first quartile, median, third quartile, maximum) and mean of the speed limits where crashes occurred, which can help us know whether or not higher speed limits correlate with more severe or frequent crashes.
+
+The data on the bottom provides us with how many households are in each ZIp code from least densely populated to most.
+
+**Contingency Table:** NA
+
+This dataset does not have sufficient rows and columns to prepare a contingency table. Please stay tuned for the joining with other datasets in the following sections.
+
+## Report on Missing Values
+
+In this section, I will be individually be looking at each dataset and reporting the missing values, how many of each, and stating how it will affect my analysis if at all.
+
+1.  **School Data Report**
+
+```{r}
+sapply(school_data, function(x) sum(is.na(x)))
+```
+
+The return above shows that there are in fact no missing values across all variables in the Public School dataset. This completeness ensures that our analysis will be as comprehensive as possible.
+
+2.  **Crash Data Report**
+
+```{r}
+sapply(crash_data, function(x) sum(is.na(x)))
+```
+
+The return above shows that there is some missing values, specifically:
+
+-   Cross Street Name: 8
+
+-   Vehicle Model: 25
+
+-   Vehicle Make: 11
+
+Considering the number of values in this Dataset, these numbers are extremley small, and only for 3 out of 43 total variables. Having said this, I believe that there will be little to no affect on my analysis, even more so that these are less significant values for my research.
+
+3.  **School Data Report**
+
+```{r}
+sapply(income_data, function(x) sum(is.na(x)))
+```
+
+The return above shows that there is only 1/3 variables that are missing data, specifically:
+
+-   Median Household Income: 56
+
+This is significant as it is the most important variable in my dataset. This effectively removes 56 zipcodes that I could possibly use, making it harder to do my research if it requires those variables. To counteract this I will need to ensure that I focus on zipcodes that do not rely on this income data.
+
+## Compelling Visualizations
+
+I will create visualizations in this section for each dataset that show:
+
+-   Distribution of variables
+
+-   Relationships inside of their own datasets
+
+-   Outliers inside their own datasets
+
+-   Descriptive Statistics where needed
+
+to create comprehensive and understandable visualizations that aid in answering my research direction.
+
+1.  **Public School Visualizations**
+
+**Bar Graph of School Types**
+
+```{r}
+school_counts <- table(school_data$CATEGORY) #Count the number of each type
+
+# create a bar plot
+ggplot(data = as.data.frame(school_counts), aes(x = Var1, y = Freq)) +
+  geom_bar(stat = "identity", fill = c("skyblue", "orange", "lightgreen")) +
+  labs(title = "Distribution of School Types in Montgomery County",
+       x = "School Type",
+       y = "Number of Schools") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+The chart shows a distribution of school types across Montgomery County providing a clear picture of the number of Elementary, Middle and High schools.
+
+**Map of Schools**
+
+```{r}
+library(leaflet) #Use leaflet to make interactive maps
+
+colors <- c("ELEMENTARY SCHOOLS" = "skyblue", "MIDDLE SCHOOLS" = "orange", "HIGH SCHOOLS" = "lightgreen") #Establish pretty colors
+
+# Add a color column based on school type
+school_data$color <- colors[school_data$CATEGORY]
+
+# Create the map
+leaflet(school_data) %>%
+  addTiles() %>%  # Add default OpenStreetMap map tiles
+  addCircleMarkers(~LONGITUDE, ~LATITUDE, color = ~color,
+                   popup = ~as.character(CATEGORY), radius = 5)
+
+```
+
+This plot has all schools on a map, color-coded by school type. This visualization will help get a sense of the layout of schools across the county in certain zip codes.
+
+2.  **Car Crash Visualizations**
+
+**Distribution of Crashes by Severity**
+
+```{r}
+# Count occurrences each crash type
+crash_severity_counts <- table(crash_data$ACRS.Report.Type)
+
+# Convert table to dataframe 
+crash_severity_df <- as.data.frame(crash_severity_counts)
+
+names(crash_severity_df) <- c("Crash_Severity", "Number_of_Crashes")
+
+# Create the bar chart
+ggplot(crash_severity_df, aes(x = Crash_Severity, y = Number_of_Crashes, fill = Crash_Severity)) +
+  geom_bar(stat = "identity", color = "black", show.legend = FALSE) +
+  scale_fill_manual(values = c("Property Damage Crash" = "tomato", "Injury Crash" = "lightblue", "Fatal Crash" = "red")) +
+  theme_minimal() +
+  labs(title = "Distribution of Crashes by Severity",
+       x = "Crash Severity", y = "Number of Crashes") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+This plot shows the most common type of crashes and their severity. From the looks of it, not that many of the crashes are fatal, but more than half result in serious injury.
+
+**Geographical Map of Crashes (Suspected Injury - Fatal)**
+
+```{r}
+
+
+# Filter out "NO APPARENT INJURY" records because too many slows down map
+filtered_crash_data <- crash_data %>% 
+  filter(Injury.Severity != "NO APPARENT INJURY")
+
+# colors for different injury level, excluding "NO APPARENT INJURY"
+severity_colors <- c("POSSIBLE INJURY" = "yellow", 
+                     "SUSPECTED MINOR INJURY" = "orange", 
+                     "SUSPECTED SERIOUS INJURY" = "red", 
+                     "FATAL INJURY" = "darkred")
+
+# Add color column based on injury severity
+filtered_crash_data$color <- severity_colors[filtered_crash_data$`Injury.Severity`]
+
+# Create map without "NO APPARENT INJURY"
+map <- leaflet(filtered_crash_data) %>%
+  addTiles() %>%  #  OpenStreetMap map tiles
+  addCircleMarkers(~Longitude, ~Latitude, color = ~color,
+                   popup = ~paste('Injury Severity:', as.character(`Injury.Severity`),
+                                  '<br>Weather:', as.character(Weather),
+                                  '<br>Light:', as.character(Light),
+                                  '<br>Date:', as.Date(Crash.Date.Time),
+                                  '<br>Car Condition:',as.character(Vehicle.Damage.Extent),
+                                  '<br>Final Action:', as.character(Vehicle.Movement)),
+                   radius = 5, opacity = 1, fillOpacity = 1)
+
+# Add legend
+map <- map %>% addLegend("bottomright", 
+                         colors = severity_colors, 
+                         labels = names(severity_colors),
+                         title = "Injury Severity")
+
+# Print the map
+map
+
+
+
+
+
+```
+
+This plot has all car crashes with a suspected injury to fatal, showing the date, last action of the driver, light condition, and all color coded based on crash severity.
+
+3.  **Income Data Visualization**
+
+**Distribution of Median Household Income by ZIP Code**
+
+```{r}
+ggplot(income_data, aes(x = Median_Household_Income)) +
+  geom_histogram(binwidth = 10000, fill = "cornflowerblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Median Household Income by ZIP Code",
+       x = "Median Household Income",
+       y = "Frequency")
+
+
+```
+
+This histogram shows the distribution of medium household income across different zipcodes.
+
+## Thank you!
